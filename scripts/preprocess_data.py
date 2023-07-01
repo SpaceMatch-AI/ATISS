@@ -18,6 +18,7 @@ import sys
 import numpy as np
 from PIL import Image, ImageFilter
 from tqdm import tqdm
+from xvfbwrapper import Xvfb
 
 from utils import DirLock, ensure_parent_directory_exists, \
     floor_plan_renderable, floor_plan_from_scene, \
@@ -130,6 +131,8 @@ def main(argv):
         os.makedirs(args.output_directory)
 
     # Create the scene and the behaviour list for simple-3dviz
+    xvfb = Xvfb(width=1280, height=720)
+    xvfb.start()
     scene = scene_from_args(args)
 
     with open(args.path_to_invalid_scene_ids, "r") as f:
@@ -265,6 +268,8 @@ def main(argv):
                 mode="shading",
                 frame_path=path_to_image
             )
+
+    xvfb.stop()
 
 
 if __name__ == "__main__":

@@ -37,8 +37,6 @@ def parse_threed_front_scenes(
         # Start parsing the dataset
         print("Loading dataset ", end="")
         for i, m in enumerate(path_to_scene_layouts):
-            if i > 5:
-                break
             with open(m) as f:
                 data = json.load(f)
                 # Parse the furniture of the scene

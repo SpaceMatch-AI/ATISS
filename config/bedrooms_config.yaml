@@ -1,13 +1,13 @@
 data:
     dataset_type: "cached_threedfront"
     encoding_type: "cached_autoregressive_wocm"
-    dataset_directory: "/media/paschalidoud/goproorgohome/3D_FRONT_processed/bedrooms"
+    dataset_directory: "/home/andrei/my-bucket/preprocessed_data_test"
     annotation_file: "../config/bedroom_threed_front_splits.csv"
     path_to_invalid_scene_ids: "../config/invalid_threed_front_rooms.txt"
     path_to_invalid_bbox_jids: "../config/black_list.txt"
     augmentations: ["rotations"]
     filter_fn: "threed_front_bedroom"
-    train_stats: "dataset_stats.txt"
+    train_stats: "/home/andrei/my-bucket/preprocessed_bedrooms/dataset_stats.txt"
     room_layout_size: "64,64"
 
 network:
@@ -34,7 +34,7 @@ training:
     splits: ["train", "val"]
     epochs: 10000
     steps_per_epoch: 500
-    batch_size: 128
+    batch_size: 1
     save_frequency: 50
     optimizer: Adam
     lr: 0.0001

@@ -178,16 +178,16 @@ def main(argv):
     )
     print("Saved the dataset bounds in {}".format(path_to_bounds))
 
-    validation_dataset = get_encoded_dataset(
-        config["data"],
-        filter_function(
-            config["data"],
-            split=config["validation"].get("splits", ["test"])
-        ),
-        path_to_bounds=path_to_bounds,
-        augmentations=None,
-        split=config["validation"].get("splits", ["test"])
-    )
+    # validation_dataset = get_encoded_dataset(
+    #     config["data"],
+    #     filter_function(
+    #         config["data"],
+    #         split=config["validation"].get("splits", ["test"])
+    #     ),
+    #     path_to_bounds=path_to_bounds,
+    #     augmentations=None,
+    #     split=config["validation"].get("splits", ["test"])
+    # )
 
     train_loader = DataLoader(
         train_dataset,
@@ -201,21 +201,21 @@ def main(argv):
     )
     print("Training set has {} bounds".format(train_dataset.bounds))
 
-    val_loader = DataLoader(
-        validation_dataset,
-        batch_size=config["validation"].get("batch_size", 1),
-        num_workers=args.n_processes,
-        collate_fn=validation_dataset.collate_fn,
-        shuffle=False
-    )
-    print("Loaded {} validation scenes with {} object types".format(
-        len(validation_dataset), validation_dataset.n_object_types)
-    )
-    print("Validation set has {} bounds".format(validation_dataset.bounds))
+    # val_loader = DataLoader(
+    #     validation_dataset,
+    #     batch_size=config["validation"].get("batch_size", 1),
+    #     num_workers=args.n_processes,
+    #     collate_fn=validation_dataset.collate_fn,
+    #     shuffle=False
+    # )
+    # print("Loaded {} validation scenes with {} object types".format(
+    #     len(validation_dataset), validation_dataset.n_object_types)
+    # )
+    # print("Validation set has {} bounds".format(validation_dataset.bounds))
 
     # Make sure that the train_dataset and the validation_dataset have the same
     # number of object categories
-    assert train_dataset.object_types == validation_dataset.object_types
+    # assert train_dataset.object_types == validation_dataset.object_types
 
     # Build the network architecture to be used for training
     network, train_on_batch, validate_on_batch = build_network(
@@ -270,17 +270,17 @@ def main(argv):
             )
         StatsLogger.instance().clear()
 
-        if i % val_every == 0 and i > 0:
-            print("====> Validation Epoch ====>")
-            network.eval()
-            for b, sample in enumerate(val_loader):
-                # Move everything to device
-                for k, v in sample.items():
-                    sample[k] = v.to(device)
-                batch_loss = validate_on_batch(network, sample, config)
-                StatsLogger.instance().print_progress(-1, b+1, batch_loss)
-            StatsLogger.instance().clear()
-            print("====> Validation Epoch ====>")
+        # if i % val_every == 0 and i > 0:
+        #     print("====> Validation Epoch ====>")
+        #     network.eval()
+        #     for b, sample in enumerate(val_loader):
+        #         # Move everything to device
+        #         for k, v in sample.items():
+        #             sample[k] = v.to(device)
+        #         batch_loss = validate_on_batch(network, sample, config)
+        #         StatsLogger.instance().print_progress(-1, b+1, batch_loss)
+        #     StatsLogger.instance().clear()
+        #     print("====> Validation Epoch ====>")
 
 
 if __name__ == "__main__":

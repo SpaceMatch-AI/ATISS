@@ -303,6 +303,7 @@ def render_to_folder(
 
 def render_scene_from_bbox_params(
     args,
+    current_boxes,
     bbox_params,
     dataset,
     objects_dataset,
@@ -336,7 +337,7 @@ def render_scene_from_bbox_params(
     trimesh_meshes += tr_floor
 
     # Do the rendering
-    behaviours = [LightToCamera(), SaveFrames(path_to_image + ".png", 1)]
+    behaviours = [SaveFrames(path_to_image + ".png", 1)]
     render_simple_3dviz(
         renderables,
         behaviours=behaviours,

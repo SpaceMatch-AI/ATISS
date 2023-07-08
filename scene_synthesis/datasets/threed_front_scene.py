@@ -223,24 +223,24 @@ class ThreedFutureModel(BaseThreedFutureModel):
         original_path = os.path.join(
             self.path_to_models, self.model_jid, "raw_model.obj"
         )
-        return original_path.replace("andrei/my-bucket", "aleksandr/mount-folder")
+        return original_path.replace("andrei/my-bucket", "aleksandr/mount_folder2")
 
     @property
     def texture_image_path(self):
         original_path = os.path.join(self.path_to_models, self.model_jid, "texture.png")
-        return original_path.replace("andrei/my-bucket", "aleksandr/mount-folder")
+        return original_path.replace("andrei/my-bucket", "aleksandr/mount_folder2")
 
     @property
     def path_to_bbox_vertices(self):
         original_path = os.path.join(
             self.path_to_models, self.model_jid, "bbox_vertices.npy"
         )
-        return original_path.replace("andrei/my-bucket", "aleksandr/mount-folder")
+        return original_path.replace("andrei/my-bucket", "aleksandr/mount_folder2")
 
     def raw_model(self):
         try:
             return trimesh.load(
-                self.raw_model_path,
+                open(self.raw_model_path),
                 process=False,
                 force="mesh",
                 skip_materials=True,

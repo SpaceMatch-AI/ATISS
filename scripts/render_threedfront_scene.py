@@ -25,7 +25,7 @@ from simple_3dviz.behaviours.io import SaveFrames
 from simple_3dviz.renderables.textured_mesh import TexturedMesh
 from simple_3dviz.utils import render
 from simple_3dviz.window import show
-
+from xvfbwrapper import Xvfb
 from utils import floor_plan_from_scene, export_scene
 
 
@@ -145,6 +145,9 @@ def main(argv):
     # Check if output directory exists and if it doesn't create it
     if not os.path.exists(args.output_directory):
         os.makedirs(args.output_directory)
+        
+    xvfb = Xvfb(width=1280, height=720)
+    xvfb.start()
 
     # Create the scene and the behaviour list for simple-3dviz
     scene = Scene(size=args.window_size)
@@ -237,7 +240,7 @@ def main(argv):
                     up_vector=args.up_vector,
                     background=args.background,
                     behaviours=behaviours,
-                    n_frames=2,
+                    n_frames=1,
                     scene=scene
                 )
             else:
@@ -259,6 +262,8 @@ def main(argv):
             if not os.path.exists(path_to_objs):
                 os.mkdir(path_to_objs)
             export_scene(path_to_objs, trimesh_meshes)
+            
+    xvfb.stop()
 
 
 if __name__ == "__main__":

@@ -202,72 +202,75 @@ def main(argv):
     )
 
     for (i, es), ss in tqdm(zip(enumerate(encoded_dataset), dataset)):
-        # Create a separate folder for each room
-        room_directory = os.path.join(args.output_directory, ss.uid)
-        # Check if room_directory exists and if it doesn't create it
-        if os.path.exists(room_directory):
-            continue
-        # Make sure we are the only ones creating this file
-        with DirLock(room_directory + ".lock") as lock:
-            if not lock.is_acquired:
-                continue
+        try:
+            # Create a separate folder for each room
+            room_directory = os.path.join(args.output_directory, ss.uid)
+            # Check if room_directory exists and if it doesn't create it
             if os.path.exists(room_directory):
                 continue
-            ensure_parent_directory_exists(room_directory)
+            # Make sure we are the only ones creating this file
+            with DirLock(room_directory + ".lock") as lock:
+                if not lock.is_acquired:
+                    continue
+                if os.path.exists(room_directory):
+                    continue
+                ensure_parent_directory_exists(room_directory)
 
-            uids = [bi.model_uid for bi in ss.bboxes]
-            jids = [bi.model_jid for bi in ss.bboxes]
+                uids = [bi.model_uid for bi in ss.bboxes]
+                jids = [bi.model_jid for bi in ss.bboxes]
 
-            floor_plan_vertices, floor_plan_faces = ss.floor_plan
+                floor_plan_vertices, floor_plan_faces = ss.floor_plan
 
-            # Render and save the room mask as an image
-            room_mask = render(
-                scene,
-                [floor_plan_renderable(ss)],
-                (1.0, 1.0, 1.0),
-                "flat",
-                os.path.join(room_directory, "room_mask.png")
-            )[:, :, 0:1]
-            np.savez_compressed(
-                os.path.join(room_directory, "boxes"),
-                uids=uids,
-                jids=jids,
-                scene_id=ss.scene_id,
-                scene_uid=ss.uid,
-                scene_type=ss.scene_type,
-                json_path=ss.json_path,
-                room_layout=room_mask,
-                floor_plan_vertices=floor_plan_vertices,
-                floor_plan_faces=floor_plan_faces,
-                floor_plan_centroid=ss.floor_plan_centroid,
-                class_labels=es["class_labels"],
-                translations=es["translations"],
-                sizes=es["sizes"],
-                angles=es["angles"]
-            )
+                # Render and save the room mask as an image
+                room_mask = render(
+                    scene,
+                    [floor_plan_renderable(ss)],
+                    (1.0, 1.0, 1.0),
+                    "flat",
+                    os.path.join(room_directory, "room_mask.png")
+                )[:, :, 0:1]
+                np.savez_compressed(
+                    os.path.join(room_directory, "boxes"),
+                    uids=uids,
+                    jids=jids,
+                    scene_id=ss.scene_id,
+                    scene_uid=ss.uid,
+                    scene_type=ss.scene_type,
+                    json_path=ss.json_path,
+                    room_layout=room_mask,
+                    floor_plan_vertices=floor_plan_vertices,
+                    floor_plan_faces=floor_plan_faces,
+                    floor_plan_centroid=ss.floor_plan_centroid,
+                    class_labels=es["class_labels"],
+                    translations=es["translations"],
+                    sizes=es["sizes"],
+                    angles=es["angles"]
+                )
 
-            # Render a top-down orthographic projection of the room at a
-            # specific pixel resolutin
-            path_to_image = "{}/rendered_scene_{}.png".format(
-                room_directory, args.window_size[0]
-            )
-            if os.path.exists(path_to_image):
-                continue
+                # Render a top-down orthographic projection of the room at a
+                # specific pixel resolutin
+                path_to_image = "{}/rendered_scene_{}.png".format(
+                    room_directory, args.window_size[0]
+                )
+                if os.path.exists(path_to_image):
+                    continue
 
-            # Get a simple_3dviz Mesh of the floor plan to be rendered
-            floor_plan, _, _ = floor_plan_from_scene(
-                ss, args.path_to_floor_plan_textures, without_room_mask=True
-            )
-            renderables = get_textured_objects_in_scene(
-                ss, ignore_lamps=args.without_lamps
-            )
-            render(
-                scene,
-                renderables + floor_plan,
-                color=None,
-                mode="shading",
-                frame_path=path_to_image
-            )
+                # Get a simple_3dviz Mesh of the floor plan to be rendered
+                floor_plan, _, _ = floor_plan_from_scene(
+                    ss, args.path_to_floor_plan_textures, without_room_mask=True
+                )
+                renderables = get_textured_objects_in_scene(
+                    ss, ignore_lamps=args.without_lamps
+                )
+                render(
+                    scene,
+                    renderables + floor_plan,
+                    color=None,
+                    mode="shading",
+                    frame_path=path_to_image
+                )
+        except:
+            print(ss.uid)
 
     xvfb.stop()
 

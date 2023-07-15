@@ -104,7 +104,9 @@ def get_floor_plan(scene, floor_textures):
     uv = np.copy(vertices[:, [0, 2]])
     uv -= uv.min(axis=0)
     uv /= 0.3  # repeat every 30cm
-    texture = np.random.choice(floor_textures)
+    folder_name = np.random.choice(floor_textures)
+    texture = os.listdir(folder_name)[0]
+    texture = os.path.join(folder_name, texture.decode())
 
     floor = TexturedMesh.from_faces(
         vertices=vertices,

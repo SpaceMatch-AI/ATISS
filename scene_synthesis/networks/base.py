@@ -8,6 +8,7 @@
 
 import torch
 import torch.nn as nn
+import math
 
 
 class FixedPositionalEncoding(nn.Module):
@@ -16,7 +17,7 @@ class FixedPositionalEncoding(nn.Module):
         ll = proj_dims//2
         exb = 2 * torch.linspace(0, ll-1, ll) / proj_dims
         self.sigma = 1.0 / torch.pow(val, exb).view(1, -1)
-        self.sigma = 2 * torch.pi * self.sigma
+        self.sigma = 2 * math.pi * self.sigma
 
     def forward(self, x):
         return torch.cat([

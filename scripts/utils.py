@@ -239,7 +239,7 @@ def poll_specific_class(dataset):
         dataset.object_types))
     if label in dataset.object_types:
         return dataset.object_types.index(label)
-    else:
+    else:git 
         return None
 
 
@@ -278,7 +278,7 @@ def render_to_folder(args,
         ],
                                   dim=1)
 
-    renderables, trimesh_meshes = get_textured_objects(
+    renderables, trimesh_meshes, _ = get_textured_objects(
         bbox_params_t.numpy(), objects_dataset, np.array(dataset.class_labels))
     trimesh_meshes += tr_floor
 
@@ -311,7 +311,7 @@ def render_scene_from_bbox_params(args, bbox_params, dataset, objects_dataset,
     ],
                               dim=-1).cpu().numpy()
 
-    renderables, trimesh_meshes = get_textured_objects(bbox_params_t,
+    renderables, trimesh_meshes, _ = get_textured_objects(bbox_params_t,
                                                        objects_dataset,
                                                        classes)
     renderables += floor_plan

@@ -239,7 +239,7 @@ def poll_specific_class(dataset):
         dataset.object_types))
     if label in dataset.object_types:
         return dataset.object_types.index(label)
-    else:git 
+    else:
         return None
 
 

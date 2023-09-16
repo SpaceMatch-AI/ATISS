@@ -1,11 +1,10 @@
-# 
+#
 # Copyright (C) 2021 NVIDIA Corporation.  All rights reserved.
 # Licensed under the NVIDIA Source Code License.
 # See LICENSE at https://github.com/nv-tlabs/ATISS.
 # Authors: Despoina Paschalidou, Amlan Kar, Maria Shugrina, Karsten Kreis,
 #          Andreas Geiger, Sanja Fidler
-# 
-
+#
 """Script used for parsing the 3D-FRONT data scenes into numpy files in order
 to be able to avoid I/O overhead when training our model.
 """
@@ -32,96 +31,61 @@ from scene_synthesis.datasets.threed_front_dataset import \
 
 def main(argv):
     parser = argparse.ArgumentParser(
-        description="Prepare the 3D-FRONT scenes to train our model"
-    )
-    parser.add_argument(
-        "output_directory",
-        default="/tmp/",
-        help="Path to output directory"
-    )
-    parser.add_argument(
-        "path_to_3d_front_dataset_directory",
-        help="Path to the 3D-FRONT dataset"
-    )
-    parser.add_argument(
-        "path_to_3d_future_dataset_directory",
-        help="Path to the 3D-FUTURE dataset"
-    )
-    parser.add_argument(
-        "path_to_model_info",
-        help="Path to the 3D-FUTURE model_info.json file"
-    )
-    parser.add_argument(
-        "path_to_floor_plan_textures",
-        help="Path to floor texture images"
-    )
-    parser.add_argument(
-        "--path_to_invalid_scene_ids",
-        default="../config/invalid_threed_front_rooms.txt",
-        help="Path to invalid scenes"
-    )
-    parser.add_argument(
-        "--path_to_invalid_bbox_jids",
-        default="../config/black_list.txt",
-        help="Path to objects that ae blacklisted"
-    )
-    parser.add_argument(
-        "--annotation_file",
-        default="../config/bedroom_threed_front_splits.csv",
-        help="Path to the train/test splits file"
-    )
-    parser.add_argument(
-        "--room_side",
-        type=float,
-        default=3.1,
-        help="The size of the room along a side (default:3.1)"
-    )
-    parser.add_argument(
-        "--dataset_filtering",
-        default="threed_front_bedroom",
-        choices=[
-            "threed_front_bedroom",
-            "threed_front_livingroom",
-            "threed_front_diningroom",
-            "threed_front_library"
-        ],
-        help="The type of dataset filtering to be used"
-    )
-    parser.add_argument(
-        "--without_lamps",
-        action="store_true",
-        help="If set ignore lamps when rendering the room"
-    )
-    parser.add_argument(
-        "--up_vector",
-        type=lambda x: tuple(map(float, x.split(","))),
-        default="0,0,-1",
-        help="Up vector of the scene"
-    )
-    parser.add_argument(
-        "--background",
-        type=lambda x: list(map(float, x.split(","))),
-        default="0,0,0,1",
-        help="Set the background of the scene"
-    )
-    parser.add_argument(
-        "--camera_target",
-        type=lambda x: tuple(map(float, x.split(","))),
-        default="0,0,0",
-        help="Set the target for the camera"
-    )
-    parser.add_argument(
-        "--camera_position",
-        type=lambda x: tuple(map(float, x.split(","))),
-        default="0,4,0",
-        help="Camer position in the scene"
-    )
-    parser.add_argument(
-        "--window_size",
-        type=lambda x: tuple(map(int, x.split(","))),
-        default="256,256",
-        help="Define the size of the scene and the window"
-    )
+        description="Prepare the 3D-FRONT scenes to train our model")
+    parser.add_argument("output_directory",
+                        default="/tmp/",
+                        help="Path to output directory")
+    parser.add_argument("path_to_3d_front_dataset_directory",
+                        help="Path to the 3D-FRONT dataset")
+    parser.add_argument("path_to_3d_future_dataset_directory",
+                        help="Path to the 3D-FUTURE dataset")
+    parser.add_argument("path_to_model_info",
+                        help="Path to the 3D-FUTURE model_info.json file")
+    parser.add_argument("path_to_floor_plan_textures",
+                        help="Path to floor texture images")
+    parser.add_argument("--path_to_invalid_scene_ids",
+                        default="../config/invalid_threed_front_rooms.txt",
+                        help="Path to invalid scenes")
+    parser.add_argument("--path_to_invalid_bbox_jids",
+                        default="../config/black_list.txt",
+                        help="Path to objects that ae blacklisted")
+    parser.add_argument("--annotation_file",
+                        default="../config/bedroom_splits.csv",
+                        help="Path to the train/test splits file")
+    parser.add_argument("--room_side",
+                        type=float,
+                        default=3.1,
+                        help="The size of the room along a side (default:3.1)")
+    parser.add_argument("--dataset_filtering",
+                        default="threed_front_bedroom",
+                        choices=[
+                            "threed_front_bedroom", "threed_front_livingroom",
+                            "threed_front_diningroom", "threed_front_library"
+                        ],
+                        help="The type of dataset filtering to be used")
+    parser.add_argument("--without_lamps",
+                        action="store_true",
+                        help="If set ignore lamps when rendering the room")
+    parser.add_argument("--up_vector",
+                        type=lambda x: tuple(map(float, x.split(","))),
+                        default="0,0,-1",
+                        help="Up vector of the scene")
+    parser.add_argument("--background",
+                        type=lambda x: list(map(float, x.split(","))),
+                        default="0,0,0,1",
+                        help="Set the background of the scene")
+    parser.add_argument("--camera_target",
+                        type=lambda x: tuple(map(float, x.split(","))),
+                        default="0,0,0",
+                        help="Set the target for the camera")
+    parser.add_argument("--camera_position",
+                        type=lambda x: tuple(map(float, x.split(","))),
+                        default="0,4,0",
+                        help="Camer position in the scene")
+    parser.add_argument("--window_size",
+                        type=lambda x: tuple(map(int, x.split(","))),
+                        default="256,256",
+                        help="Define the size of the scene and the window")
 
     args = parser.parse_args(argv)
     logging.getLogger("trimesh").setLevel(logging.ERROR)
@@ -142,12 +106,12 @@ def main(argv):
         invalid_bbox_jids = set(l.strip() for l in f)
 
     config = {
-        "filter_fn":                 args.dataset_filtering,
-        "min_n_boxes":               -1,
-        "max_n_boxes":               -1,
+        "filter_fn": args.dataset_filtering,
+        "min_n_boxes": -1,
+        "max_n_boxes": -1,
         "path_to_invalid_scene_ids": args.path_to_invalid_scene_ids,
         "path_to_invalid_bbox_jids": args.path_to_invalid_bbox_jids,
-        "annotation_file":           args.annotation_file
+        "annotation_file": args.annotation_file
     }
 
     # Initially, we only consider the train split to compute the dataset
@@ -156,8 +120,8 @@ def main(argv):
         dataset_directory=args.path_to_3d_front_dataset_directory,
         path_to_model_info=args.path_to_model_info,
         path_to_models=args.path_to_3d_future_dataset_directory,
-        filter_fn=filter_function(config, ["train", "val"], args.without_lamps)
-    )
+        filter_fn=filter_function(config, ["train", "val"],
+                                  args.without_lamps))
     print("Loading dataset with {} rooms".format(len(dataset)))
 
     # Compute the bounds for the translations, sizes and angles in the dataset.
@@ -182,24 +146,21 @@ def main(argv):
         json.dump(dataset_stats, f)
     print(
         "Saving training statistics for dataset with bounds: {} to {}".format(
-            dataset.bounds, path_to_json
-        )
-    )
+            dataset.bounds, path_to_json))
 
     dataset = ThreedFront.from_dataset_directory(
         dataset_directory=args.path_to_3d_front_dataset_directory,
         path_to_model_info=args.path_to_model_info,
         path_to_models=args.path_to_3d_future_dataset_directory,
-        filter_fn=filter_function(
-            config, ["train", "val", "test"], args.without_lamps
-        )
-    )
+        filter_fn=filter_function(config, ["train", "val", "test"],
+                                  args.without_lamps))
     print(dataset.bounds)
     print("Loading dataset with {} rooms".format(len(dataset)))
 
-    encoded_dataset = dataset_encoding_factory(
-        "basic", dataset, augmentations=None, box_ordering=None
-    )
+    encoded_dataset = dataset_encoding_factory("basic",
+                                               dataset,
+                                               augmentations=None,
+                                               box_ordering=None)
 
     for (i, es), ss in tqdm(zip(enumerate(encoded_dataset), dataset)):
         # Create a separate folder for each room
@@ -221,53 +182,43 @@ def main(argv):
             floor_plan_vertices, floor_plan_faces = ss.floor_plan
 
             # Render and save the room mask as an image
-            room_mask = render(
-                scene,
-                [floor_plan_renderable(ss)],
-                (1.0, 1.0, 1.0),
-                "flat",
-                os.path.join(room_directory, "room_mask.png")
-            )[:, :, 0:1]
-            np.savez_compressed(
-                os.path.join(room_directory, "boxes"),
-                uids=uids,
-                jids=jids,
-                scene_id=ss.scene_id,
-                scene_uid=ss.uid,
-                scene_type=ss.scene_type,
-                json_path=ss.json_path,
-                room_layout=room_mask,
-                floor_plan_vertices=floor_plan_vertices,
-                floor_plan_faces=floor_plan_faces,
-                floor_plan_centroid=ss.floor_plan_centroid,
-                class_labels=es["class_labels"],
-                translations=es["translations"],
-                sizes=es["sizes"],
-                angles=es["angles"]
-            )
+            room_mask = render(scene, [floor_plan_renderable(ss)],
+                               (1.0, 1.0, 1.0), "flat",
+                               os.path.join(room_directory,
+                                            "room_mask.png"))[:, :, 0:1]
+            np.savez_compressed(os.path.join(room_directory, "boxes"),
+                                uids=uids,
+                                jids=jids,
+                                scene_id=ss.scene_id,
+                                scene_uid=ss.uid,
+                                scene_type=ss.scene_type,
+                                json_path=ss.json_path,
+                                room_layout=room_mask,
+                                floor_plan_vertices=floor_plan_vertices,
+                                floor_plan_faces=floor_plan_faces,
+                                floor_plan_centroid=ss.floor_plan_centroid,
+                                class_labels=es["class_labels"],
+                                translations=es["translations"],
+                                sizes=es["sizes"],
+                                angles=es["angles"])
 
             # Render a top-down orthographic projection of the room at a
             # specific pixel resolutin
             path_to_image = "{}/rendered_scene_{}.png".format(
-                room_directory, args.window_size[0]
-            )
+                room_directory, args.window_size[0])
             if os.path.exists(path_to_image):
                 continue
 
             # Get a simple_3dviz Mesh of the floor plan to be rendered
             floor_plan, _, _ = floor_plan_from_scene(
-                ss, args.path_to_floor_plan_textures, without_room_mask=True
-            )
+                ss, args.path_to_floor_plan_textures, without_room_mask=True)
             renderables = get_textured_objects_in_scene(
-                ss, ignore_lamps=args.without_lamps
-            )
-            render(
-                scene,
-                renderables + floor_plan,
-                color=None,
-                mode="shading",
-                frame_path=path_to_image
-            )
+                ss, ignore_lamps=args.without_lamps)
+            render(scene,
+                   renderables + floor_plan,
+                   color=None,
+                   mode="shading",
+                   frame_path=path_to_image)
 
     xvfb.stop()
 

@@ -48,7 +48,11 @@ def create_rend_mesh(furniture, bbox_params_t, index):
     return raw_mesh, tr_mesh
 
 
-def get_textured_objects(bbox_params_t, objects_dataset, classes, topk=1):
+def get_textured_objects(bbox_params_t,
+                         objects_dataset,
+                         classes,
+                         topk=1,
+                         style=None):
     # For each one of the boxes replace them with an object
     renderables = []
     trimesh_meshes = []
@@ -59,13 +63,14 @@ def get_textured_objects(bbox_params_t, objects_dataset, classes, topk=1):
         query_size = bbox_params_t[0, j, -4:-1]
         query_label = classes[bbox_params_t[0, j, :-7].argmax(-1)]
         furniture = objects_dataset.get_closest_furniture_to_box(
-            query_label, query_size, topk)
+            query_label, query_size, topk, query_style=style)
         renderable, trimesh_mesh = create_rend_mesh(furniture[0],
                                                     bbox_params_t, j)
         renderables.append(renderable)
         trimesh_meshes.append(trimesh_mesh)
         additionals = []
-        for i in range(1, topk):
+        max_num_to_return = min(topk, len(furniture))
+        for i in range(1, max_num_to_return):
             _, add_trimesh_mesh = create_rend_mesh(furniture[i], bbox_params_t,
                                                    j)
             additionals.append(add_trimesh_mesh)

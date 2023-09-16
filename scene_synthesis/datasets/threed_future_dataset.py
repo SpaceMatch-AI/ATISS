@@ -31,8 +31,20 @@ class ThreedFutureDataset(object):
     def _filter_objects_by_label(self, label):
         return [oi for oi in self.objects if oi.label == label]
 
-    def get_closest_furniture_to_box(self, query_label, query_size, topk=1):
+    def _filter_objects_by_style(self, objects, style):
+        assert len(objects) > 0
+        assert style in ['Japanese', 'Modern', 'Korean', \
+            'Light Luxury', 'Minimalist', 'Southeast Asia', 'Industrial']
+        return [oi for oi in objects if oi.model_info.style == style]
+
+    def get_closest_furniture_to_box(self,
+                                     query_label,
+                                     query_size,
+                                     topk=1,
+                                     query_style=None):
         objects = self._filter_objects_by_label(query_label)
+        if query_style is not None:
+            objects = self._filter_objects_by_style(objects, query_style)
 
         mses = {}
         for i, oi in enumerate(objects):
@@ -61,4 +73,4 @@ class ThreedFutureDataset(object):
     def from_pickled_dataset(cls, path_to_pickled_dataset):
         with open(path_to_pickled_dataset, "rb") as f:
             dataset = pickle.load(f)
-        return dataset
+        return cls(dataset.objects)

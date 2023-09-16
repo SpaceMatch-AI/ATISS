@@ -20,7 +20,7 @@ from .autoregressive_transformer import AutoregressiveTransformer, \
 
 from .hidden_to_output import AutoregressiveDMLL, get_bbox_output
 from .feature_extractors import get_feature_extractor
-
+import torch
 
 def hidden2output_layer(config, n_classes):
     config_n = config["network"]
@@ -65,7 +65,7 @@ def build_network(
     n_classes,
     config,
     weight_file=None,
-    device="cpu"):
+    device='cpu'):
     network_type = config["network"]["type"]
 
     if network_type == "autoregressive_transformer":

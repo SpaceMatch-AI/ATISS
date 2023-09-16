@@ -1,10 +1,10 @@
-# 
+#
 # Copyright (C) 2021 NVIDIA Corporation.  All rights reserved.
 # Licensed under the NVIDIA Source Code License.
 # See LICENSE at https://github.com/nv-tlabs/ATISS.
 # Authors: Despoina Paschalidou, Amlan Kar, Maria Shugrina, Karsten Kreis,
 #          Andreas Geiger, Sanja Fidler
-# 
+#
 
 from collections import Counter
 from dataclasses import dataclass
@@ -23,13 +23,15 @@ from simple_3dviz import Lines, Mesh, Spherecloud
 from simple_3dviz.renderables.textured_mesh import Material, TexturedMesh
 from simple_3dviz.behaviours.keyboard import SnapshotOnKey
 from simple_3dviz.behaviours.misc import LightToCamera
+
 try:
     from simple_3dviz.window import show
 except ImportError:
     import sys
+
     print(
         "No GUI library found. Simple-3dviz will be running headless only.",
-        file=sys.stderr
+        file=sys.stderr,
     )
 
 
@@ -41,14 +43,19 @@ def rotation_matrix(axis, theta):
     b, c, d = -axis * np.sin(theta / 2.0)
     aa, bb, cc, dd = a * a, b * b, c * c, d * d
     bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
-    return np.array([[aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
-                     [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
-                     [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]])
+    return np.array(
+        [
+            [aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
+            [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
+            [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc],
+        ]
+    )
 
 
 @dataclass
 class Asset:
     """Contains the information for each 3D-FUTURE model."""
+
     super_category: str
     category: str
     style: str
@@ -63,11 +70,12 @@ class Asset:
 class ModelInfo(object):
     """Contains all the information for all 3D-FUTURE models.
 
-        Arguments
-        ---------
-        model_info_data: list of dictionaries containing the information
-                         regarding the 3D-FUTURE models.
+    Arguments
+    ---------
+    model_info_data: list of dictionaries containing the information
+                     regarding the 3D-FUTURE models.
     """
+
     def __init__(self, model_info_data):
         self.model_info_data = model_info_data
         self._model_info = None
@@ -91,7 +99,10 @@ class ModelInfo(object):
                 if m["theme"] not in self._themes and m["theme"] is not None:
                     self._themes.append(m["theme"])
                 # Keep track of the different super-categories
-                if m["super-category"] not in self._super_categories and m["super-category"] is not None:
+                if (
+                    m["super-category"] not in self._super_categories
+                    and m["super-category"] is not None
+                ):
                     self._super_categories.append(m["super-category"])
                 # Keep track of the different categories
                 if m["category"] not in self._categories and m["category"] is not None:
@@ -110,11 +121,7 @@ class ModelInfo(object):
                     cat = m["category"].lower().replace(" / ", "/")
 
                 self._model_info[m["model_id"]] = Asset(
-                    super_cat,
-                    cat, 
-                    m["style"],
-                    m["theme"],
-                    m["material"]
+                    super_cat, cat, m["style"], m["theme"], m["material"]
                 )
 
         return self._model_info
@@ -137,10 +144,7 @@ class ModelInfo(object):
 
     @property
     def super_categories(self):
-        return set([
-            s.lower().replace(" / ", "/")
-            for s in self._super_categories
-        ])
+        return set([s.lower().replace(" / ", "/") for s in self._super_categories])
 
     @classmethod
     def from_file(cls, path_to_model_info):
@@ -164,7 +168,7 @@ class BaseThreedFutureModel(object):
         # translates the model based on the model info.
         ref = [0, 0, 1]
         axis = np.cross(ref, self.rotation[1:])
-        theta = np.arccos(np.dot(ref, self.rotation[1:]))*2
+        theta = np.arccos(np.dot(ref, self.rotation[1:])) * 2
         vertices = vertices * self.scale
         if np.sum(axis) != 0 and not np.isnan(theta):
             R = rotation_matrix(axis, theta)
@@ -174,10 +178,7 @@ class BaseThreedFutureModel(object):
         return vertices
 
     def mesh_renderable(
-        self,
-        colors=(0.5, 0.5, 0.5, 1.0),
-        offset=[[0, 0, 0]],
-        with_texture=False
+        self, colors=(0.5, 0.5, 0.5, 1.0), offset=[[0, 0, 0]], with_texture=False
     ):
         if not with_texture:
             m = self.raw_model_transformed(offset)
@@ -193,7 +194,7 @@ class BaseThreedFutureModel(object):
             R[0, 2] = -np.sin(theta)
             R[2, 0] = np.sin(theta)
             R[2, 2] = np.cos(theta)
-            R[1, 1] = 1.
+            R[1, 1] = 1.0
 
             # Apply the transformations in order to correctly position the mesh
             m.affine_transform(R=R, t=self.position)
@@ -210,36 +211,31 @@ class ThreedFutureModel(BaseThreedFutureModel):
         position,
         rotation,
         scale,
-        path_to_models
+        path_to_models,
     ):
         super().__init__(model_uid, model_jid, position, rotation, scale)
         self.model_info = model_info
         self.path_to_models = path_to_models
         self._label = None
+        self._bbox_vertices = None
 
     @property
     def raw_model_path(self):
         return os.path.join(
-            self.path_to_models,
-            self.model_jid,
-            "raw_model.obj"
-        )
+            self.path_to_models, self.model_jid, "raw_model.obj"
+        ).replace("andrei", "aleksandr")
 
     @property
     def texture_image_path(self):
-        return os.path.join(
-            self.path_to_models,
-            self.model_jid,
-            "texture.png"
+        return os.path.join(self.path_to_models, self.model_jid, "texture.png").replace(
+            "andrei", "aleksandr"
         )
 
     @property
     def path_to_bbox_vertices(self):
         return os.path.join(
-            self.path_to_models,
-            self.model_jid,
-            "bbox_vertices.npy"
-        )
+            self.path_to_models, self.model_jid, "bbox_vertices.npy"
+        ).replace("andrei", "aleksandr")
 
     def raw_model(self):
         try:
@@ -248,10 +244,11 @@ class ThreedFutureModel(BaseThreedFutureModel):
                 process=False,
                 force="mesh",
                 skip_materials=True,
-                skip_texture=True
+                skip_texture=True,
             )
         except:
             import pdb
+
             pdb.set_trace()
             print("Loading model failed", flush=True)
             print(self.raw_model_path, flush=True)
@@ -270,16 +267,18 @@ class ThreedFutureModel(BaseThreedFutureModel):
     @cached_property
     def size(self):
         corners = self.corners()
-        return np.array([
-            np.sqrt(np.sum((corners[4]-corners[0])**2))/2,
-            np.sqrt(np.sum((corners[2]-corners[0])**2))/2,
-            np.sqrt(np.sum((corners[1]-corners[0])**2))/2
-        ])
+        return np.array(
+            [
+                np.sqrt(np.sum((corners[4] - corners[0]) ** 2)) / 2,
+                np.sqrt(np.sum((corners[2] - corners[0]) ** 2)) / 2,
+                np.sqrt(np.sum((corners[1] - corners[0]) ** 2)) / 2,
+            ]
+        )
 
     def bottom_center(self, offset=[[0, 0, 0]]):
         centroid = self.centroid(offset)
         size = self.size
-        return np.array([centroid[0], centroid[1]-size[1], centroid[2]])
+        return np.array([centroid[0], centroid[1] - size[1], centroid[2]])
 
     @cached_property
     def bottom_size(self):
@@ -291,16 +290,16 @@ class ThreedFutureModel(BaseThreedFutureModel):
         # code.
         ref = [0, 0, 1]
         axis = np.cross(ref, self.rotation[1:])
-        theta = np.arccos(np.dot(ref, self.rotation[1:]))*2
+        theta = np.arccos(np.dot(ref, self.rotation[1:])) * 2
 
         if np.sum(axis) == 0 or np.isnan(theta):
             return 0
 
         assert np.dot(axis, [1, 0, 1]) == 0
-        assert 0 <= theta <= 2*np.pi
+        assert 0 <= theta <= 2 * np.pi
 
         if theta >= np.pi:
-            theta = theta - 2*np.pi
+            theta = theta - 2 * np.pi
 
         return np.sign(axis[1]) * theta
 
@@ -314,7 +313,17 @@ class ThreedFutureModel(BaseThreedFutureModel):
     def label(self, _label):
         self._label = _label
 
+    # def set_bbox_vertices(self, _bbox_vertices):
+    #     self._bbox_vertices = _bbox_vertices
+
+    # @property
+    # def bbox_vertices(self):
+    #     return self._bbox_vertices
+
     def corners(self, offset=[[0, 0, 0]]):
+        # if self._bbox_vertices:
+        #     bbox_vertices = self._bbox_vertices
+        # else:
         try:
             bbox_vertices = np.load(self.path_to_bbox_vertices, mmap_mode="r")
         except:
@@ -326,29 +335,25 @@ class ThreedFutureModel(BaseThreedFutureModel):
     def origin_renderable(self, offset=[[0, 0, 0]]):
         corners = self.corners(offset)
         return Lines(
-            [
-                corners[0], corners[4],
-                corners[0], corners[2],
-                corners[0], corners[1]
-            ],
-            colors=np.array([
-                [1.0, 0.0, 0.0, 1.0],
-                [1.0, 0.0, 0.0, 1.0],
-                [0.0, 1.0, 0.0, 1.0],
-                [0.0, 1.0, 0.0, 1.0],
-                [0.0, 0.0, 1.0, 1.0],
-                [0.0, 0.0, 1.0, 1.0]
-            ]),
-            width=0.02
+            [corners[0], corners[4], corners[0], corners[2], corners[0], corners[1]],
+            colors=np.array(
+                [
+                    [1.0, 0.0, 0.0, 1.0],
+                    [1.0, 0.0, 0.0, 1.0],
+                    [0.0, 1.0, 0.0, 1.0],
+                    [0.0, 1.0, 0.0, 1.0],
+                    [0.0, 0.0, 1.0, 1.0],
+                    [0.0, 0.0, 1.0, 1.0],
+                ]
+            ),
+            width=0.02,
         )
 
-    def bbox_corners_renderable(
-        self, sizes=0.1, colors=(1, 0, 0), offset=[[0, 0, 0]]
-    ):
+    def bbox_corners_renderable(self, sizes=0.1, colors=(1, 0, 0), offset=[[0, 0, 0]]):
         return Spherecloud(self.corners(offset), sizes=sizes, colors=colors)
 
     def bbox_renderable(
-        self, colors=(0.00392157, 0., 0.40392157, 1.), offset=[[0, 0, 0]]
+        self, colors=(0.00392157, 0.0, 0.40392157, 1.0), offset=[[0, 0, 0]]
     ):
         alpha = np.array(self.size)[None]
         epsilon = np.ones((1, 2)) * 0.1
@@ -359,15 +364,12 @@ class ThreedFutureModel(BaseThreedFutureModel):
         R[:, 0, 2] = -np.sin(theta)
         R[:, 2, 0] = np.sin(theta)
         R[:, 2, 2] = np.cos(theta)
-        R[:, 1, 1] = 1.
+        R[:, 1, 1] = 1.0
 
         return Mesh.from_superquadrics(alpha, epsilon, translation, R, colors)
 
     def show(
-        self,
-        behaviours=[LightToCamera()],
-        with_bbox_corners=False,
-        offset=[[0, 0, 0]]
+        self, behaviours=[LightToCamera()], with_bbox_corners=False, offset=[[0, 0, 0]]
     ):
         renderables = self.mesh_renderable(offset=offset)
         if with_bbox_corners:
@@ -388,7 +390,7 @@ class ThreedFutureModel(BaseThreedFutureModel):
             position=self.position,
             rotation=self.rotation,
             scale=other_model.scale,
-            path_to_models=self.path_to_models
+            path_to_models=self.path_to_models,
         )
         model.label = self.label
         return model
@@ -396,15 +398,7 @@ class ThreedFutureModel(BaseThreedFutureModel):
 
 class ThreedFutureExtra(BaseThreedFutureModel):
     def __init__(
-        self,
-        model_uid,
-        model_jid,
-        xyz,
-        faces,
-        model_type,
-        position,
-        rotation,
-        scale
+        self, model_uid, model_jid, xyz, faces, model_type, position, rotation, scale
     ):
         super().__init__(model_uid, model_jid, position, rotation, scale)
         self.xyz = xyz
@@ -416,17 +410,20 @@ class ThreedFutureExtra(BaseThreedFutureModel):
         faces = np.array(self.faces)
         return trimesh.Trimesh(vertices, faces)
 
-    def show(
-        self, behaviours=[LightToCamera(), SnapshotOnKey()], offset=[[0, 0, 0]]
-    ):
+    def show(self, behaviours=[LightToCamera(), SnapshotOnKey()], offset=[[0, 0, 0]]):
         renderables = self.mesh_renderable(offset=offset)
         show(renderables, behaviours)
 
 
 class Room(BaseScene):
     def __init__(
-        self, scene_id, scene_type, bboxes, extras, json_path,
-        path_to_room_masks_dir=None
+        self,
+        scene_id,
+        scene_type,
+        bboxes,
+        extras,
+        json_path,
+        path_to_room_masks_dir=None,
     ):
         super().__init__(scene_id, scene_type, bboxes)
         self.json_path = json_path
@@ -456,7 +453,7 @@ class Room(BaseScene):
     @cached_property
     def bboxes_centroid(self):
         a, b = self.bbox
-        return (a+b)/2
+        return (a + b) / 2
 
     @property
     def furniture_in_room(self):
@@ -474,7 +471,7 @@ class Room(BaseScene):
         # Compute the full floor plan
         vertices, faces = reduce(
             cat_mesh,
-            ((ei.xyz, ei.faces) for ei in self.extras if ei.model_type == "Floor")
+            ((ei.xyz, ei.faces) for ei in self.extras if ei.model_type == "Floor"),
         )
         return np.copy(vertices), np.copy(faces)
 
@@ -486,7 +483,7 @@ class Room(BaseScene):
     @cached_property
     def floor_plan_centroid(self):
         a, b = self.floor_plan_bbox
-        return (a+b)/2
+        return (a + b) / 2
 
     @cached_property
     def centroid(self):
@@ -509,12 +506,11 @@ class Room(BaseScene):
         return np.asarray(im).astype(np.float32) / np.float32(255)
 
     def category_counts(self, class_labels):
-        """List of category counts in the room
-        """
+        """List of category counts in the room"""
         print(class_labels)
         if "start" in class_labels and "end" in class_labels:
             class_labels = class_labels[:-2]
-        category_counts = [0]*len(class_labels)
+        category_counts = [0] * len(class_labels)
 
         for di in self.furniture_in_room:
             category_counts[class_labels.index(di)] += 1
@@ -529,9 +525,7 @@ class Room(BaseScene):
 
     def ordered_bboxes_with_class_labels(self, all_labels):
         centroids = np.array([f.centroid(-self.centroid) for f in self.bboxes])
-        int_labels = np.array(
-            [[f.int_label(all_labels)] for f in self.bboxes]
-        )
+        int_labels = np.array([[f.int_label(all_labels)] for f in self.bboxes])
         ordering = np.lexsort(np.hstack([centroids, int_labels]).T)
         ordered_bboxes = [self.bboxes[i] for i in ordering]
 
@@ -539,9 +533,7 @@ class Room(BaseScene):
 
     def ordered_bboxes_with_class_frequencies(self, class_order):
         centroids = np.array([f.centroid(-self.centroid) for f in self.bboxes])
-        label_order = np.array([
-            [class_order[f.label]] for f in self.bboxes
-        ])
+        label_order = np.array([[class_order[f.label]] for f in self.bboxes])
         ordering = np.lexsort(np.hstack([centroids, label_order]).T)
         ordered_bboxes = [self.bboxes[i] for i in ordering[::-1]]
 
@@ -556,7 +548,7 @@ class Room(BaseScene):
         with_objects_offset=False,
         with_floor_plan_offset=False,
         with_floor_plan=False,
-        with_texture=False
+        with_texture=False,
     ):
         if with_objects_offset:
             offset = -self.bboxes_centroid
@@ -566,9 +558,7 @@ class Room(BaseScene):
             offset = [[0, 0, 0]]
 
         renderables = [
-            f.mesh_renderable(
-                colors=colors, offset=offset, with_texture=with_texture
-            )
+            f.mesh_renderable(colors=colors, offset=offset, with_texture=with_texture)
             for f in self.bboxes
         ]
         if with_origin:
@@ -599,20 +589,23 @@ class Room(BaseScene):
         camera_target=(0, 0, 0),
         camera_position=(-2, -2, -2),
         up_vector=(0, 0, 1),
-        window_size=(512, 512)
+        window_size=(512, 512),
     ):
         renderables = self.furniture_renderables(
             with_bbox_corners=with_bbox_corners,
             with_bboxes=with_bboxes,
             with_objects_offset=with_objects_offset,
             with_floor_plan_offset=with_floor_plan_offset,
-            with_floor_plan=with_floor_plan
+            with_floor_plan=with_floor_plan,
         )
         show(
-            renderables, behaviours=behaviours,
-            size=window_size, camera_position=camera_position,
-            camera_target=camera_target, up_vector=up_vector,
-            background=background
+            renderables,
+            behaviours=behaviours,
+            size=window_size,
+            camera_position=camera_position,
+            camera_target=camera_target,
+            up_vector=up_vector,
+            background=background,
         )
 
     def augment_room(self, objects_dataset):
@@ -627,9 +620,7 @@ class Room(BaseScene):
         )
         bi_retrieved = bi.copy_from_other_model(furniture)
 
-        new_bboxes = [
-            box for box in bboxes if not box == bi
-        ] + [bi_retrieved]
+        new_bboxes = [box for box in bboxes if not box == bi] + [bi_retrieved]
 
         return Room(
             scene_id=self.scene_id + "_augm",
@@ -637,5 +628,5 @@ class Room(BaseScene):
             bboxes=new_bboxes,
             extras=self.extras,
             json_path=self.json_path,
-            path_to_room_masks_dir=self.path_to_room_masks_dir
+            path_to_room_masks_dir=self.path_to_room_masks_dir,
         )

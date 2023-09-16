@@ -32,7 +32,7 @@ def create_rend_mesh(furniture, bbox_params_t, index):
     R[0, 2] = -np.sin(theta)
     R[2, 0] = np.sin(theta)
     R[2, 2] = np.cos(theta)
-    R[1, 1] = 1.
+    R[1, 1] = 1.0
 
     # Apply the transformations in order to correctly position the mesh
     raw_mesh.affine_transform(t=-centroid)
@@ -59,19 +59,22 @@ def get_textured_objects(bbox_params_t, objects_dataset, classes, topk=1):
         query_size = bbox_params_t[0, j, -4:-1]
         query_label = classes[bbox_params_t[0, j, :-7].argmax(-1)]
         furniture = objects_dataset.get_closest_furniture_to_box(
-            query_label, query_size, topk)
-        renderable, trimesh_mesh = create_rend_mesh(furniture[0],
-                                                    bbox_params_t, j)
+            query_label, query_size, topk
+        )
+        renderable, trimesh_mesh = create_rend_mesh(furniture[0], bbox_params_t, j)
         renderables.append(renderable)
         trimesh_meshes.append(trimesh_mesh)
-        additionals = []
-        for i in range(1, topk):
-            _, add_trimesh_mesh = create_rend_mesh(furniture[i], bbox_params_t,
-                                                   j)
-            additionals.append(add_trimesh_mesh)
-        additional_objects.append(additionals)
+        # additionals = []
+        # print(time() - a)
+        # a = time()
+        # for i in range(1, topk):
+        #     _, add_trimesh_mesh = create_rend_mesh(furniture[i], bbox_params_t, j)
+        #     additionals.append(add_trimesh_mesh)
+        # print(time() - a)
+        # a = time()
+        # additional_objects.append(additionals)
 
-    return renderables, trimesh_meshes, additional_objects
+    return renderables, trimesh_meshes, None  # additional_objects
 
 
 def get_floor_plan(scene, floor_textures):
@@ -88,14 +91,13 @@ def get_floor_plan(scene, floor_textures):
         vertices=vertices,
         uv=uv,
         faces=faces,
-        material=Material.with_texture_image(texture))
+        material=Material.with_texture_image(texture),
+    )
 
-    tr_floor = trimesh.Trimesh(np.copy(vertices),
-                               np.copy(faces),
-                               process=False)
+    tr_floor = trimesh.Trimesh(np.copy(vertices), np.copy(faces), process=False)
     tr_floor.visual = trimesh.visual.TextureVisuals(
         uv=np.copy(uv),
-        material=trimesh.visual.material.SimpleMaterial(
-            image=Image.open(texture)))
+        material=trimesh.visual.material.SimpleMaterial(image=Image.open(texture)),
+    )
 
     return floor, tr_floor

@@ -62,6 +62,8 @@ def get_textured_objects(bbox_params_t,
     for j in range(1, bbox_params_t.shape[1] - 1):
         query_size = bbox_params_t[0, j, -4:-1]
         query_label = classes[bbox_params_t[0, j, :-7].argmax(-1)]
+        if query_label in ['start', 'end']:
+            continue
         furniture = objects_dataset.get_closest_furniture_to_box(
             query_label, query_size, topk, query_style=style)
         renderable, trimesh_mesh = create_rend_mesh(furniture[0],

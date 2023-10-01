@@ -38,7 +38,7 @@ class ThreedFutureDataset(object):
         for i, oi in enumerate(objects):
             mses[oi] = np.sum((oi.size - query_size)**2, axis=-1)
         sorted_mses = [k for k, v in sorted(mses.items(), key=lambda x:x[1])]
-        return sorted_mses
+        return sorted_mses[0] # remove [0] to get a list
 
     def get_closest_furniture_to_2dbox(self, query_label, query_size):
         objects = self._filter_objects_by_label(query_label)
@@ -50,7 +50,7 @@ class ThreedFutureDataset(object):
                 (oi.size[2] - query_size[1])**2
             )
         sorted_mses = [k for k, v in sorted(mses.items(), key=lambda x: x[1])]
-        return sorted_mses
+        return sorted_mses[0]  # remove [0] to get a list
 
     @classmethod
     def from_dataset_directory(

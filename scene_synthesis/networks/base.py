@@ -5,10 +5,10 @@
 # Authors: Despoina Paschalidou, Amlan Kar, Maria Shugrina, Karsten Kreis,
 #          Andreas Geiger, Sanja Fidler
 # 
-
+import math
 import torch
 import torch.nn as nn
-
+torch.pi = math.pi
 
 class FixedPositionalEncoding(nn.Module):
     def __init__(self, proj_dims, val=0.1):

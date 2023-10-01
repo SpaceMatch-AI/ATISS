@@ -24,15 +24,15 @@ from simple_3dviz.renderables.textured_mesh import Material, TexturedMesh
 from simple_3dviz.behaviours.keyboard import SnapshotOnKey
 from simple_3dviz.behaviours.misc import LightToCamera
 
-try:
-    from simple_3dviz.window import show
-except ImportError:
-    import sys
+# try:
+#     from simple_3dviz.window import show
+# except ImportError:
+#     import sys
 
-    print(
-        "No GUI library found. Simple-3dviz will be running headless only.",
-        file=sys.stderr,
-    )
+#     print(
+#         "No GUI library found. Simple-3dviz will be running headless only.",
+#         file=sys.stderr,
+#     )
 
 
 def rotation_matrix(axis, theta):
@@ -358,13 +358,13 @@ class ThreedFutureModel(BaseThreedFutureModel):
 
         return Mesh.from_superquadrics(alpha, epsilon, translation, R, colors)
 
-    def show(
-        self, behaviours=[LightToCamera()], with_bbox_corners=False, offset=[[0, 0, 0]]
-    ):
-        renderables = self.mesh_renderable(offset=offset)
-        if with_bbox_corners:
-            renderables += [self.bbox_corners_renderable(offset=offset)]
-        show(renderables, behaviours=behaviours)
+    # def show(
+    #     self, behaviours=[LightToCamera()], with_bbox_corners=False, offset=[[0, 0, 0]]
+    # ):
+    #     renderables = self.mesh_renderable(offset=offset)
+    #     if with_bbox_corners:
+    #         renderables += [self.bbox_corners_renderable(offset=offset)]
+    #     show(renderables, behaviours=behaviours)
 
     def one_hot_label(self, all_labels):
         return np.eye(len(all_labels))[self.int_label(all_labels)]
@@ -400,9 +400,9 @@ class ThreedFutureExtra(BaseThreedFutureModel):
         faces = np.array(self.faces)
         return trimesh.Trimesh(vertices, faces)
 
-    def show(self, behaviours=[LightToCamera(), SnapshotOnKey()], offset=[[0, 0, 0]]):
-        renderables = self.mesh_renderable(offset=offset)
-        show(renderables, behaviours)
+    # def show(self, behaviours=[LightToCamera(), SnapshotOnKey()], offset=[[0, 0, 0]]):
+    #     renderables = self.mesh_renderable(offset=offset)
+    #     show(renderables, behaviours)
 
 
 class Room(BaseScene):
@@ -567,36 +567,36 @@ class Room(BaseScene):
             ]
         return renderables
 
-    def show(
-        self,
-        behaviours=[LightToCamera(), SnapshotOnKey()],
-        with_bbox_corners=False,
-        with_bboxes=False,
-        with_objects_offset=False,
-        with_floor_plan_offset=False,
-        with_floor_plan=False,
-        background=(1.0, 1.0, 1.0, 1.0),
-        camera_target=(0, 0, 0),
-        camera_position=(-2, -2, -2),
-        up_vector=(0, 0, 1),
-        window_size=(512, 512),
-    ):
-        renderables = self.furniture_renderables(
-            with_bbox_corners=with_bbox_corners,
-            with_bboxes=with_bboxes,
-            with_objects_offset=with_objects_offset,
-            with_floor_plan_offset=with_floor_plan_offset,
-            with_floor_plan=with_floor_plan,
-        )
-        show(
-            renderables,
-            behaviours=behaviours,
-            size=window_size,
-            camera_position=camera_position,
-            camera_target=camera_target,
-            up_vector=up_vector,
-            background=background,
-        )
+    # def show(
+    #     self,
+    #     behaviours=[LightToCamera(), SnapshotOnKey()],
+    #     with_bbox_corners=False,
+    #     with_bboxes=False,
+    #     with_objects_offset=False,
+    #     with_floor_plan_offset=False,
+    #     with_floor_plan=False,
+    #     background=(1.0, 1.0, 1.0, 1.0),
+    #     camera_target=(0, 0, 0),
+    #     camera_position=(-2, -2, -2),
+    #     up_vector=(0, 0, 1),
+    #     window_size=(512, 512),
+    # ):
+    #     renderables = self.furniture_renderables(
+    #         with_bbox_corners=with_bbox_corners,
+    #         with_bboxes=with_bboxes,
+    #         with_objects_offset=with_objects_offset,
+    #         with_floor_plan_offset=with_floor_plan_offset,
+    #         with_floor_plan=with_floor_plan,
+    #     )
+    #     show(
+    #         renderables,
+    #         behaviours=behaviours,
+    #         size=window_size,
+    #         camera_position=camera_position,
+    #         camera_target=camera_target,
+    #         up_vector=up_vector,
+    #         background=background,
+    #     )
 
     def augment_room(self, objects_dataset):
         bboxes = self.bboxes

@@ -1,0 +1,7 @@
+# https://github.com/mikedh/trimesh
+newmtl material_005
+Ka 0.02352941 0.02352941 0.02352941
+Kd 0.02352941 0.02352941 0.02352941
+Ks 0.18431373 0.18431373 0.18431373
+Ns 1.00000000
+map_Kd material_005.png

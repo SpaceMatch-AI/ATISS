@@ -14,6 +14,7 @@ from PIL import Image
 from pyrr import Matrix44
 
 import trimesh
+import re
 
 from simple_3dviz import Mesh, Scene
 from simple_3dviz.renderables.textured_mesh import Material, TexturedMesh
@@ -207,7 +208,7 @@ def export_scene(output_directory, trimesh_meshes, names=None):
                                                            return_texture=True)
 
         with open(os.path.join(output_directory, names[i]), "w") as f:
-            f.write(obj_out.replace("material0", mtl_names[i]))
+            f.write(obj_out.replace("material_0", mtl_names[i]))
 
         # No material and texture to rename
         if tex_out is None:
@@ -217,7 +218,7 @@ def export_scene(output_directory, trimesh_meshes, names=None):
         path_to_mtl_file = os.path.join(output_directory,
                                         mtl_names[i] + ".mtl")
         with open(path_to_mtl_file, "wb") as f:
-            f.write(tex_out[mtl_key].replace(b"material0",
+            f.write(tex_out[mtl_key].replace(b"material_0",
                                              mtl_names[i].encode("ascii")))
         tex_key = next(k for k in tex_out.keys() if not k.endswith(".mtl"))
         tex_ext = os.path.splitext(tex_key)[1]
@@ -311,9 +312,8 @@ def render_scene_from_bbox_params(args, bbox_params, dataset, objects_dataset,
     ],
                               dim=-1).cpu().numpy()
 
-    renderables, trimesh_meshes, _ = get_textured_objects(bbox_params_t,
-                                                       objects_dataset,
-                                                       classes)
+    renderables, trimesh_meshes, _ = get_textured_objects(
+        bbox_params_t, objects_dataset, classes)
     renderables += floor_plan
     trimesh_meshes += tr_floor
 

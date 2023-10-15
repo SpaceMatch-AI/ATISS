@@ -68,8 +68,6 @@ def get_textured_objects(bbox_params_t,
             query_label, query_size, topk, query_style=style)
         renderable, trimesh_mesh = create_rend_mesh(furniture[0],
                                                     bbox_params_t, j)
-        renderable, trimesh_mesh = create_rend_mesh(furniture[0],
-                                                    bbox_params_t, j)
         renderables.append(renderable)
         trimesh_meshes.append(trimesh_mesh)
         # additionals = []

@@ -43,13 +43,11 @@ def rotation_matrix(axis, theta):
     b, c, d = -axis * np.sin(theta / 2.0)
     aa, bb, cc, dd = a * a, b * b, c * c, d * d
     bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
-    return np.array(
-        [
-            [aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
-            [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
-            [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc],
-        ]
-    )
+    return np.array([
+        [aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
+        [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
+        [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc],
+    ])
 
 
 @dataclass
@@ -99,16 +97,16 @@ class ModelInfo(object):
                 if m["theme"] not in self._themes and m["theme"] is not None:
                     self._themes.append(m["theme"])
                 # Keep track of the different super-categories
-                if (
-                    m["super-category"] not in self._super_categories
-                    and m["super-category"] is not None
-                ):
+                if (m["super-category"] not in self._super_categories
+                        and m["super-category"] is not None):
                     self._super_categories.append(m["super-category"])
                 # Keep track of the different categories
-                if m["category"] not in self._categories and m["category"] is not None:
+                if m["category"] not in self._categories and m[
+                        "category"] is not None:
                     self._categories.append(m["category"])
                 # Keep track of the different categories
-                if m["material"] not in self._materials and m["material"] is not None:
+                if m["material"] not in self._materials and m[
+                        "material"] is not None:
                     self._materials.append(m["material"])
 
                 super_cat = "unknown_super-category"
@@ -121,8 +119,7 @@ class ModelInfo(object):
                     cat = m["category"].lower().replace(" / ", "/")
 
                 self._model_info[m["model_id"]] = Asset(
-                    super_cat, cat, m["style"], m["theme"], m["material"]
-                )
+                    super_cat, cat, m["style"], m["theme"], m["material"])
 
         return self._model_info
 
@@ -144,7 +141,8 @@ class ModelInfo(object):
 
     @property
     def super_categories(self):
-        return set([s.lower().replace(" / ", "/") for s in self._super_categories])
+        return set(
+            [s.lower().replace(" / ", "/") for s in self._super_categories])
 
     @classmethod
     def from_file(cls, path_to_model_info):
@@ -155,6 +153,7 @@ class ModelInfo(object):
 
 
 class BaseThreedFutureModel(object):
+
     def __init__(self, model_uid, model_jid, position, rotation, scale):
         self.model_uid = model_uid
         self.model_jid = model_jid
@@ -177,9 +176,10 @@ class BaseThreedFutureModel(object):
 
         return vertices
 
-    def mesh_renderable(
-        self, colors=(0.5, 0.5, 0.5, 1.0), offset=[[0, 0, 0]], with_texture=False
-    ):
+    def mesh_renderable(self,
+                        colors=(0.5, 0.5, 0.5, 1.0),
+                        offset=[[0, 0, 0]],
+                        with_texture=False):
         if not with_texture:
             m = self.raw_model_transformed(offset)
             return Mesh.from_faces(m.vertices, m.faces, colors=colors)
@@ -203,6 +203,7 @@ class BaseThreedFutureModel(object):
 
 
 class ThreedFutureModel(BaseThreedFutureModel):
+
     def __init__(
         self,
         model_uid,
@@ -221,21 +222,17 @@ class ThreedFutureModel(BaseThreedFutureModel):
 
     @property
     def raw_model_path(self):
-        return os.path.join(
-            self.path_to_models, self.model_jid, "raw_model.obj"
-        ).replace("andrei", "aleksandr")
+        return os.path.join(self.path_to_models, self.model_jid,
+                            "raw_model.obj")
 
     @property
     def texture_image_path(self):
-        return os.path.join(self.path_to_models, self.model_jid, "texture.png").replace(
-            "andrei", "aleksandr"
-        )
+        return os.path.join(self.path_to_models, self.model_jid, "texture.png")
 
     @property
     def path_to_bbox_vertices(self):
-        return os.path.join(
-            self.path_to_models, self.model_jid, "bbox_vertices.npy"
-        ).replace("andrei", "aleksandr")
+        return os.path.join(self.path_to_models, self.model_jid,
+                            "bbox_vertices.npy")
 
     def raw_model(self):
         try:
@@ -267,13 +264,11 @@ class ThreedFutureModel(BaseThreedFutureModel):
     @cached_property
     def size(self):
         corners = self.corners()
-        return np.array(
-            [
-                np.sqrt(np.sum((corners[4] - corners[0]) ** 2)) / 2,
-                np.sqrt(np.sum((corners[2] - corners[0]) ** 2)) / 2,
-                np.sqrt(np.sum((corners[1] - corners[0]) ** 2)) / 2,
-            ]
-        )
+        return np.array([
+            np.sqrt(np.sum((corners[4] - corners[0])**2)) / 2,
+            np.sqrt(np.sum((corners[2] - corners[0])**2)) / 2,
+            np.sqrt(np.sum((corners[1] - corners[0])**2)) / 2,
+        ])
 
     def bottom_center(self, offset=[[0, 0, 0]]):
         centroid = self.centroid(offset)
@@ -335,26 +330,30 @@ class ThreedFutureModel(BaseThreedFutureModel):
     def origin_renderable(self, offset=[[0, 0, 0]]):
         corners = self.corners(offset)
         return Lines(
-            [corners[0], corners[4], corners[0], corners[2], corners[0], corners[1]],
-            colors=np.array(
-                [
-                    [1.0, 0.0, 0.0, 1.0],
-                    [1.0, 0.0, 0.0, 1.0],
-                    [0.0, 1.0, 0.0, 1.0],
-                    [0.0, 1.0, 0.0, 1.0],
-                    [0.0, 0.0, 1.0, 1.0],
-                    [0.0, 0.0, 1.0, 1.0],
-                ]
-            ),
+            [
+                corners[0], corners[4], corners[0], corners[2], corners[0],
+                corners[1]
+            ],
+            colors=np.array([
+                [1.0, 0.0, 0.0, 1.0],
+                [1.0, 0.0, 0.0, 1.0],
+                [0.0, 1.0, 0.0, 1.0],
+                [0.0, 1.0, 0.0, 1.0],
+                [0.0, 0.0, 1.0, 1.0],
+                [0.0, 0.0, 1.0, 1.0],
+            ]),
             width=0.02,
         )
 
-    def bbox_corners_renderable(self, sizes=0.1, colors=(1, 0, 0), offset=[[0, 0, 0]]):
+    def bbox_corners_renderable(self,
+                                sizes=0.1,
+                                colors=(1, 0, 0),
+                                offset=[[0, 0, 0]]):
         return Spherecloud(self.corners(offset), sizes=sizes, colors=colors)
 
-    def bbox_renderable(
-        self, colors=(0.00392157, 0.0, 0.40392157, 1.0), offset=[[0, 0, 0]]
-    ):
+    def bbox_renderable(self,
+                        colors=(0.00392157, 0.0, 0.40392157, 1.0),
+                        offset=[[0, 0, 0]]):
         alpha = np.array(self.size)[None]
         epsilon = np.ones((1, 2)) * 0.1
         translation = np.array(self.centroid(offset))[None]
@@ -368,9 +367,10 @@ class ThreedFutureModel(BaseThreedFutureModel):
 
         return Mesh.from_superquadrics(alpha, epsilon, translation, R, colors)
 
-    def show(
-        self, behaviours=[LightToCamera()], with_bbox_corners=False, offset=[[0, 0, 0]]
-    ):
+    def show(self,
+             behaviours=[LightToCamera()],
+             with_bbox_corners=False,
+             offset=[[0, 0, 0]]):
         renderables = self.mesh_renderable(offset=offset)
         if with_bbox_corners:
             renderables += [self.bbox_corners_renderable(offset=offset)]
@@ -397,9 +397,9 @@ class ThreedFutureModel(BaseThreedFutureModel):
 
 
 class ThreedFutureExtra(BaseThreedFutureModel):
-    def __init__(
-        self, model_uid, model_jid, xyz, faces, model_type, position, rotation, scale
-    ):
+
+    def __init__(self, model_uid, model_jid, xyz, faces, model_type, position,
+                 rotation, scale):
         super().__init__(model_uid, model_jid, position, rotation, scale)
         self.xyz = xyz
         self.faces = faces
@@ -410,12 +410,15 @@ class ThreedFutureExtra(BaseThreedFutureModel):
         faces = np.array(self.faces)
         return trimesh.Trimesh(vertices, faces)
 
-    def show(self, behaviours=[LightToCamera(), SnapshotOnKey()], offset=[[0, 0, 0]]):
+    def show(self,
+             behaviours=[LightToCamera(), SnapshotOnKey()],
+             offset=[[0, 0, 0]]):
         renderables = self.mesh_renderable(offset=offset)
         show(renderables, behaviours)
 
 
 class Room(BaseScene):
+
     def __init__(
         self,
         scene_id,
@@ -432,9 +435,8 @@ class Room(BaseScene):
         self.uid = "_".join([self.json_path, scene_id])
         self.path_to_room_masks_dir = path_to_room_masks_dir
         if path_to_room_masks_dir is not None:
-            self.path_to_room_mask = os.path.join(
-                self.path_to_room_masks_dir, self.uid, "room_mask.png"
-            )
+            self.path_to_room_mask = os.path.join(self.path_to_room_masks_dir,
+                                                  self.uid, "room_mask.png")
         else:
             self.path_to_room_mask = None
 
@@ -461,6 +463,7 @@ class Room(BaseScene):
 
     @property
     def floor_plan(self):
+
         def cat_mesh(m1, m2):
             v1, f1 = m1
             v2, f2 = m2
@@ -471,7 +474,8 @@ class Room(BaseScene):
         # Compute the full floor plan
         vertices, faces = reduce(
             cat_mesh,
-            ((ei.xyz, ei.faces) for ei in self.extras if ei.model_type == "Floor"),
+            ((ei.xyz, ei.faces)
+             for ei in self.extras if ei.model_type == "Floor"),
         )
         return np.copy(vertices), np.copy(faces)
 
@@ -558,8 +562,9 @@ class Room(BaseScene):
             offset = [[0, 0, 0]]
 
         renderables = [
-            f.mesh_renderable(colors=colors, offset=offset, with_texture=with_texture)
-            for f in self.bboxes
+            f.mesh_renderable(colors=colors,
+                              offset=offset,
+                              with_texture=with_texture) for f in self.bboxes
         ]
         if with_origin:
             renderables += [f.origin_renderable(offset) for f in self.bboxes]
@@ -578,18 +583,18 @@ class Room(BaseScene):
         return renderables
 
     def show(
-        self,
-        behaviours=[LightToCamera(), SnapshotOnKey()],
-        with_bbox_corners=False,
-        with_bboxes=False,
-        with_objects_offset=False,
-        with_floor_plan_offset=False,
-        with_floor_plan=False,
-        background=(1.0, 1.0, 1.0, 1.0),
-        camera_target=(0, 0, 0),
-        camera_position=(-2, -2, -2),
-        up_vector=(0, 0, 1),
-        window_size=(512, 512),
+            self,
+            behaviours=[LightToCamera(), SnapshotOnKey()],
+            with_bbox_corners=False,
+            with_bboxes=False,
+            with_objects_offset=False,
+            with_floor_plan_offset=False,
+            with_floor_plan=False,
+            background=(1.0, 1.0, 1.0, 1.0),
+            camera_target=(0, 0, 0),
+            camera_position=(-2, -2, -2),
+            up_vector=(0, 0, 1),
+            window_size=(512, 512),
     ):
         renderables = self.furniture_renderables(
             with_bbox_corners=with_bbox_corners,
@@ -616,8 +621,7 @@ class Room(BaseScene):
         query_size = bi.size + np.random.normal(0, 0.02)
         # Retrieve the new asset based on the size of the picked asset
         furniture = objects_dataset.get_closest_furniture_to_box(
-            query_label, query_size
-        )
+            query_label, query_size)
         bi_retrieved = bi.copy_from_other_model(furniture)
 
         new_bboxes = [box for box in bboxes if not box == bi] + [bi_retrieved]

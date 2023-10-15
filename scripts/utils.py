@@ -208,7 +208,10 @@ def export_scene(output_directory, trimesh_meshes, names=None):
                                                            return_texture=True)
 
         with open(os.path.join(output_directory, names[i]), "w") as f:
-            f.write(obj_out.replace("material_0", mtl_names[i]))
+            f.write(
+                obj_out.replace("material_0",
+                                mtl_names[i]).replace("material_0",
+                                                      mtl_names[i]))
 
         # No material and texture to rename
         if tex_out is None:
@@ -218,8 +221,9 @@ def export_scene(output_directory, trimesh_meshes, names=None):
         path_to_mtl_file = os.path.join(output_directory,
                                         mtl_names[i] + ".mtl")
         with open(path_to_mtl_file, "wb") as f:
-            f.write(tex_out[mtl_key].replace(b"material_0",
-                                             mtl_names[i].encode("ascii")))
+            f.write(tex_out[mtl_key].replace(
+                b"material_0", mtl_names[i].encode("ascii")).replace(
+                    b"material0", mtl_names[i].encode("ascii")))
         tex_key = next(k for k in tex_out.keys() if not k.endswith(".mtl"))
         tex_ext = os.path.splitext(tex_key)[1]
         path_to_tex_file = os.path.join(output_directory,

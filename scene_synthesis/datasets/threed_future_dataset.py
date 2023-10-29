@@ -54,7 +54,10 @@ class ThreedFutureDataset(object):
                                      query_style=None):
         objects = self._filter_objects_by_label(query_label)
         if query_style is not None:
-            objects = self._filter_objects_by_style(objects, query_style)
+            objects_style = self._filter_objects_by_style(objects, query_style)
+            if len(objects_style) != 0:
+                objects = objects_style
+
         mses = {}
         for i, oi in enumerate(objects):
             oi_size = self.compute_size(
@@ -67,8 +70,8 @@ class ThreedFutureDataset(object):
             ])
             mses[oi] = np.sum((oi_size - query_size)**2, axis=-1)
         sorted_mses = [k for k, v in sorted(mses.items(), key=lambda x: x[1])]
-        max_num = max(len(sorted_mses), 5)
-        return [sorted_mses[np.random.randint(0, max_num)]]
+        min_num = min(len(sorted_mses), 5)
+        return [sorted_mses[np.random.randint(0, min_num)]]
 
     def get_closest_furniture_to_2dbox(self, query_label, query_size):
         objects = self._filter_objects_by_label(query_label)
